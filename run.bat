@@ -1,9 +1,9 @@
 @echo off
 setlocal
-if not exist ".venv\Scripts\python.exe" (
-    echo Creating virtual environment...
-    py -3 -m venv .venv
+cd /d "%~dp0"
+if exist ".venv\Scripts\python.exe" (
+  .venv\Scripts\python.exe main.py
+) else (
+  python main.py
 )
-".venv\Scripts\python.exe" -m pip install -r requirements.txt
-".venv\Scripts\python.exe" main.py
-pause
+endlocal

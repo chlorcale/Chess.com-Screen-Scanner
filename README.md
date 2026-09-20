@@ -1,59 +1,83 @@
+# Chess Move Reader - DOM Edition
 
-# Chess Move Reader — fixed selection + OCR test
+Ứng dụng Tkinter đọc danh sách nước đi Chess.com trực tiếp từ DOM thay vì OCR, sau đó dựng vị trí bằng `python-chess` và phân tích nước đi tốt nhất tiếp theo bằng Stockfish.
 
-Bản này sửa lỗi quan trọng của bản trước: app không còn hiện lại trước khi
-chụp screenshot chọn vùng. Vì app đang Always-on-top, việc hiện app trong
-lúc chụp có thể khiến chính cửa sổ app che danh sách nước đi.
+## Cấu trúc
 
-## Chạy
+```text
+Chess.com screen reader/
+├── main.py
+├── requirements.txt
+├── README.md
+├── run.bat
+├── bridge/
+│   └── chess_dom_reader.js
+├── stockfish/
+│   └── stockfish.exe
+└── chess_reader/
+    ├── __init__.py
+    ├── app.py
+    ├── config.py
+    ├── core/
+    │   ├── __init__.py
+    │   ├── models.py
+    │   ├── dom_parser.py
+    │   └── chess_logic.py
+    ├── services/
+    │   ├── __init__.py
+    │   ├── dom_bridge.py
+    │   └── stockfish.py
+    ├── controllers/
+    │   ├── __init__.py
+    │   ├── dom_controller.py
+    │   └── analysis_controller.py
+    └── ui/
+        ├── __init__.py
+        ├── main_window.py
+        └── settings_panel.py
+```
+
+## Cài đặt
+
+PowerShell:
 
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python main.py
 ```
 
-## Quy trình
+Hoặc chạy `run.bat`.
 
-1. Đặt chess.com và move list nhìn rõ.
-2. Bấm `Chọn vùng OCR`.
-3. App sẽ biến mất.
-4. Kéo quanh đúng khu vực move list.
-5. Thả chuột.
-6. App xuất hiện lại.
-7. Bấm `Test OCR`.
-8. Nếu Test OCR nhìn thấy chữ/nước đi thì bấm `Bắt đầu`.
+## Cách dùng
 
-## Rất quan trọng
+1. Mở ván cờ Chess.com trong Chrome/Edge.
+2. Chạy ứng dụng bằng `python main.py`.
+3. Bấm **Khởi động DOM Bridge**.
+4. Trong DevTools của tab Chess.com, mở **Console**.
+5. Mở file `bridge/chess_dom_reader.js`, copy toàn bộ và paste vào Console.
+6. Enter. Console sẽ bắt đầu theo dõi `<wc-simple-move-list>` bằng `MutationObserver`.
+7. Quay lại app và chọn:
+   - **Trắng**: chỉ cập nhật phân tích cho nước Trắng.
+   - **Đen**: chỉ cập nhật phân tích cho nước Đen.
+   - **Cả hai**: cập nhật sau mọi thay đổi hợp lệ.
+8. App sẽ hiển thị nước đi tốt nhất tiếp theo, evaluation, depth và danh sách nước hiện tại.
 
-Đừng để cửa sổ Chess Move Reader che lên chính vùng OCR khi đang đọc.
-Bạn có thể kéo app sang góc khác màn hình.
+## Bridge
 
-Ví dụ:
+Server local chạy trên `127.0.0.1:8765`.
 
-```text
-CHESS.COM
-+--------------------------------------------+
-|                                            |
-|              bàn cờ         MOVE LIST     |
-|                             1. e4 e5       |
-|                             2. Nf3 Nc6     |
-|                             3. Bb5 a6      |
-|                                            |
-+--------------------------------------------+
+Endpoint:
 
-                  [Chess Move Reader]
-```
+- `GET /health`
+- `POST /moves`
+- `OPTIONS /moves`
 
-`Always on top` có nghĩa app luôn nổi phía trên; nó không thể đọc được chữ
-nằm phía sau chính cửa sổ của nó nếu hai vùng chồng lên nhau.
+JS trong `bridge/chess_dom_reader.js` tự gửi dữ liệu khi DOM thay đổi và dùng `copy()` để có thể lấy plaintext bằng tay nếu cần.
 
-## Test OCR
+## Lưu ý
 
-`Test OCR` hiển thị raw plaintext mà Tesseract nhận được từ vùng đang chọn.
-Đây là bước debug quan trọng:
+Bridge DOM đọc dữ liệu từ giao diện trang, không dùng OCR. Nếu Chess.com thay đổi HTML component hoặc đóng Shadow DOM, selector trong `bridge/chess_dom_reader.js` có thể cần chỉnh lại.
 
-- Nếu raw text có `e4`, `e5`, ... nhưng danh sách Moves chưa cập nhật:
-  vấn đề nằm ở bộ parser SAN.
-- Nếu raw text trống/rác:
-  vấn đề nằm ở vùng chọn hoặc preprocessing OCR.
+`stockfish/stockfish.exe` trong package này là file Windows đã được cung cấp cùng project. Trên máy Windows, app tự tìm executable này; không cần thêm Stockfish vào PATH.

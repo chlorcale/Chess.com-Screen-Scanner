@@ -1,3 +1,5 @@
-mss>=10.0.0
-Pillow>=11.0.0
-pytesseract>=0.3.13
+python-chess
+mss
+pytesseract
+Pillow
+chess>=1.11.0

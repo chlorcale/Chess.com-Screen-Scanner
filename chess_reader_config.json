@@ -1,8 +1,8 @@
 {
   "region": [
-    955,
-    627,
-    1260,
+    1006,
+    631,
+    1241,
     825
   ],
   "monitor": {
@@ -12,7 +12,7 @@
     "height": 1080
   },
   "interval": 0.15,
-  "engine_time": 0.1,
+  "engine_time": 0.2,
   "multipv": 2,
   "side": "both",
   "auto": true,
