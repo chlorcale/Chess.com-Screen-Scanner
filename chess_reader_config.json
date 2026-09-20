@@ -1,0 +1,20 @@
+{
+  "region": [
+    955,
+    627,
+    1260,
+    825
+  ],
+  "monitor": {
+    "left": 0,
+    "top": 0,
+    "width": 1920,
+    "height": 1080
+  },
+  "interval": 0.15,
+  "engine_time": 0.1,
+  "multipv": 2,
+  "side": "both",
+  "auto": true,
+  "engine_path": "C:/Users/Admin/Downloads/stockfish-windows-x86-64-universal/stockfish/stockfish-windows-x86-64-universal.exe"
+}
